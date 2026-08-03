@@ -756,7 +756,13 @@ document.addEventListener('click', () => {
     }
 }, { once: true });
 
+syncAndPredict(); 
+startEngine();
 
+// উইন্ডো এক্সপোজার
+window.initPrediction = syncAndPredict;
+window.startTimer = startEngine; 
+window.syncAndPredict = syncAndPredict;
 
 /* ================= DRAG FX BOX ================= */
 let dragging=false,sx=0,sy=0,bx=0,by=0;
@@ -1085,116 +1091,6 @@ function initAuthSystem(engineType) {
     let fullEngineName = engineType === "dk" ? "𝐃𝐊𝐖𝐈𝐍" : engineType === "hz" ? "𝐇𝐙𝐍𝐈𝐂𝐄" : engineType === "bd" ? "𝐁𝐃𝐖𝐈𝐍" : engineType.toUpperCase();
     let engineColor = engineType === "dk" ? "#ffd700" : engineType === "hz" ? "#ff4d4d" : engineType === "bd" ? "#00f2fe" : "#ffd700";
 
-    // গ্রিন নিওন ও গ্লোয়িং থিম ব্যাজ (রেজিস্ট্রেশন ও লগইন পেজ চেনার লাইভ ইন্ডিকেটর)
-    const pageModeBadge = isFirstTime 
-        ? `<span style="background: rgba(0, 255, 135, 0.15); color: #00ff87; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0, 255, 135, 0.4); text-shadow: 0 0 5px #00ff87; border: 1px solid rgba(0, 255, 135, 0.3);"> 𝐍𝐄𝐖 𝐑𝐄𝐆𝐈𝐒𝐓𝐑𝐀𝐓𝐈𝐎𝐍</span>`
-        : `<span style="background: rgba(0, 255, 135, 0.15); color: #00ff87; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0, 255, 135, 0.4); text-shadow: 0 0 5px #00ff87; border: 1px solid rgba(0, 255, 135, 0.3);"> 𝐒𝐄𝐂𝐔𝐑𝐄 𝐔𝐍𝐋𝐎𝐂𝐊</span>`;
-
-    const formBorderColor = isFirstTime ? "#00ff87" : engineColor;
-    const btnBg = isFirstTime ? "linear-gradient(135deg, #00ff87, #60efff)" : `linear-gradient(135deg, ${engineColor}, #ff8c00)`;
-    const btnShadow = isFirstTime ? "0 4px 14px rgba(0,255,135,0.4)" : `0 4px 14px rgba(255,215,0,0.35)`;
-    const buttonText = isFirstTime ? "CREATE ACCOUNT" : "UNLOCK SYSTEM";
-
-    const authForm = document.createElement('div');
-    authForm.id = 'fxAuthForm';
-    authForm.style.cssText = `
-        display: flex; flex-direction: column; padding: 18px 12px;
-        background: linear-gradient(145deg, rgba(8, 10, 18, 0.96), rgba(3, 4, 8, 0.99));
-        border-radius: 14px; border: 2px solid ${formBorderColor};
-        box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 15px ${formBorderColor}18;
-    `;
-
-    authForm.innerHTML = `
-        <div style="text-align: center; margin-bottom: 12px;">
-            <div style="margin-bottom: 6px;">${pageModeBadge}</div>
-            <h3 style="color: #fff; font-size: 13px; margin: 0; font-weight: 900; font-family: 'Orbitron', sans-serif; letter-spacing: 0.5px;">
-                <span style="color: ${engineColor}; text-shadow: 0 0 8px ${engineColor}aa;">${fullEngineName}</span>
-            </h3>
-        </div>
-        
-        <div class="fx-field-container">
-            <input type="text" id="authUser" class="modern-input" placeholder="👤 Username...">
-        </div>
-        
-        <div class="fx-field-container">
-            <input type="text" id="authId" class="modern-input" placeholder="🆔 User ID...">
-        </div>
-
-        <div class="fx-field-container" style="display: ${isFirstTime ? 'none' : 'block'};">
-            <input type="password" id="authPass" class="modern-input" placeholder="🔑 Admin Key...">
-            <span id="fxEyeToggle" class="eye-toggle">👁️</span>
-        </div>
-        
-        <button id="authSubmitBtn" class="modern-btn" style="background: ${btnBg}; box-shadow: ${btnShadow};">${buttonText}</button>
-        <p id="authError" class="modern-err"></p>
-    `;
-
-    const mainBox = document.querySelector('.fx-box');
-if (mainBox) {
-    mainBox.style.width = "180px";
-    mainBox.style.height = "auto";
-    mainBox.style.maxHeight = "320px";
-    mainBox.style.boxSizing = "border-box";
-    mainBox.appendChild(authForm);
-}
-
-
-    // পাসওয়ার্ড ভিজিবিলিটি টগল (👁️)
-    const eyeToggle = document.getElementById('fxEyeToggle');
-    const authPassField = document.getElementById('authPass');
-    if (eyeToggle && authPassField) {
-        eyeToggle.addEventListener('click', () => {
-            if (authPassField.type === "password") {
-                authPassField.type = "text";
-                eyeToggle.textContent = "🔒";
-                eyeToggle.style.color = "#ffd700";
-            } else {
-                authPassField.type = "password";
-                eyeToggle.textContent = "👁️";
-                eyeToggle.style.color = "rgba(255,255,255,0.4)";
-            }
-        });
-    }
-
-    // ইনপুট ফিল্ডের বর্ডার স্টাইল হ্যান্ডলার
-    const inputs = [document.getElementById('authUser'), document.getElementById('authId'), authPassField];
-    inputs.forEach(input => {
-        if (input) {
-            input.addEventListener('focus', () => input.style.borderColor = formBorderColor);
-            input.addEventListener('blur', () => input.style.borderColor = 'rgba(255,255,255,0.1)');
-        }
-    });
-
-    // মেইন ফর্ম সাবমিট লজিক
-    document.getElementById('authSubmitBtn')?.addEventListener('click', () => {
-        const u = document.getElementById('authUser').value.trim();
-        const id = document.getElementById('authId').value.trim();
-        const p = authPassField ? authPassField.value.trim() : '';
-        const err = document.getElementById('authError');
-        
-        if (err) err.style.display = 'none';
-        inputs.forEach(i => i?.classList.remove('input-error-shake'));
-
-        const triggerInputError = (inputEl, message) => {
-// ==========================================
-// 🚀 ৪. মেইন অথেনটিকেশন সিস্টেম ফাংশন (শুরু)
-// ==========================================
-function initAuthSystem(engineType) {
-    currentEngineType = engineType;
-    const fxBody = document.getElementById('fxBody');
-    if (!fxBody) return;
-
-    const oldForm = document.getElementById('fxAuthForm');
-    if (oldForm) oldForm.remove();
-    fxBody.style.display = 'none';
-
-    const savedUser = localStorage.getItem('fx_username_' + engineType);
-    const savedId = localStorage.getItem('fx_userid_' + engineType);
-    const isFirstTime = (!savedUser || !savedId);
-
-    let fullEngineName = engineType === "dk" ? "𝐃𝐊𝐖𝐈𝐍" : engineType === "hz" ? "𝐇𝐙𝐍𝐈𝐂𝐄" : engineType === "bd" ? "𝐁𝐃𝐖𝐈𝐍" : engineType.toUpperCase();
-    let engineColor = engineType === "dk" ? "#ffd700" : engineType === "hz" ? "#ff4d4d" : engineType === "bd" ? "#00f2fe" : "#ffd700";
-
     // 🟢 লগইন/রেজিস্ট্রেশন সফল হলে ফর্ম হাইড এবং সিস্টেম বডি শো করার লোকাল ফাংশন
     function proceedToSystem(formEl, bodyEl) {
         if (formEl) formEl.style.display = 'none';
@@ -1354,7 +1250,6 @@ if (typeof syncAndPredict === 'function') {
 if (typeof startEngine === 'function') {
     window.startTimer = startEngine; 
 }
-
 
 // ==========================================
 // 👑 ৫. আল্ট্রা-প্রিমিয়াম সেটিংস সমৃদ্ধ অ্যাডমিন মোডাল
@@ -1558,7 +1453,7 @@ function showCustomAdminModal() {
     const CONFIG = {
         totalDurationDays: 30,                 
         expiryDate: "2026-09-01 00:00:00",    
-        telegramUsername: "zx_vip_trader_00" 
+        telegramUsername: "owner_zihad_sir11" 
     };
 
     const currentDomain = window.location.hostname || "UNKNOWN_DOMAIN.COM";
@@ -1669,7 +1564,7 @@ function renderExpiryDashboard() {
     dashboard.id = 'fxExpiryOverlay';
     dashboard.className = 'expire-container';
     
-    const baseTelegramUrl = "https://t.me/zx_vip_trader_00";
+    const baseTelegramUrl = "https://t.me/owner_zihad_sir11";
     
     const orderText = "*[🪫 SYSTEM ALARM: SUBSCRIPTION EXPIRED 🪫]* \n\n" +
                       "👋 *🖐️ Hello Admin,*\n" +
@@ -1828,4 +1723,4 @@ if (window.location.hostname !== myDomain && window.location.hostname !== "local
     alert("Unauthorized access! This script is protected by habib.");
     document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>This is a stolen copy! <br> Please visit the original site: " + myDomain + "</h1>";
     window.location.href = "https://" + myDomain;
- }
+}
