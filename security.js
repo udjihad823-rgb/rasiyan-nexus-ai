@@ -1176,6 +1176,121 @@ if (mainBox) {
         inputs.forEach(i => i?.classList.remove('input-error-shake'));
 
         const triggerInputError = (inputEl, message) => {
+// ==========================================
+// 🚀 ৪. মেইন অথেনটিকেশন সিস্টেম ফাংশন (শুরু)
+// ==========================================
+function initAuthSystem(engineType) {
+    currentEngineType = engineType;
+    const fxBody = document.getElementById('fxBody');
+    if (!fxBody) return;
+
+    const oldForm = document.getElementById('fxAuthForm');
+    if (oldForm) oldForm.remove();
+    fxBody.style.display = 'none';
+
+    const savedUser = localStorage.getItem('fx_username_' + engineType);
+    const savedId = localStorage.getItem('fx_userid_' + engineType);
+    const isFirstTime = (!savedUser || !savedId);
+
+    let fullEngineName = engineType === "dk" ? "𝐃𝐊𝐖𝐈𝐍" : engineType === "hz" ? "𝐇𝐙𝐍𝐈𝐂𝐄" : engineType === "bd" ? "𝐁𝐃𝐖𝐈𝐍" : engineType.toUpperCase();
+    let engineColor = engineType === "dk" ? "#ffd700" : engineType === "hz" ? "#ff4d4d" : engineType === "bd" ? "#00f2fe" : "#ffd700";
+
+    // 🟢 লগইন/রেজিস্ট্রেশন সফল হলে ফর্ম হাইড এবং সিস্টেম বডি শো করার লোকাল ফাংশন
+    function proceedToSystem(formEl, bodyEl) {
+        if (formEl) formEl.style.display = 'none';
+        if (bodyEl) bodyEl.style.display = 'block';
+    }
+
+    // গ্রিন নিоন ও গ্লোয়িং থিম ব্যাজ (রেজিস্ট্রেশন ও লগইন পেজ চেনার লাইভ ইন্ডিকেটর)
+    const pageModeBadge = isFirstTime 
+        ? `<span style="background: rgba(0, 255, 135, 0.15); color: #00ff87; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0, 255, 135, 0.4); text-shadow: 0 0 5px #00ff87; border: 1px solid rgba(0, 255, 135, 0.3);"> 𝐍𝐄𝐖 𝐑𝐄𝐆𝐈𝐒𝐓𝐑𝐀𝐓𝐈𝐎𝐍</span>`
+        : `<span style="background: rgba(0, 255, 135, 0.15); color: #00ff87; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0, 255, 135, 0.4); text-shadow: 0 0 5px #00ff87; border: 1px solid rgba(0, 255, 135, 0.3);"> 𝐒𝐄𝐂𝐔𝐑𝐄 𝐔𝐍𝐋𝐎𝐂𝐊</span>`;
+
+    const formBorderColor = isFirstTime ? "#00ff87" : engineColor;
+    const btnBg = isFirstTime ? "linear-gradient(135deg, #00ff87, #60efff)" : `linear-gradient(135deg, ${engineColor}, #ff8c00)`;
+    const btnShadow = isFirstTime ? "0 4px 14px rgba(0,255,135,0.4)" : `0 4px 14px rgba(255,215,0,0.35)`;
+    const buttonText = isFirstTime ? "CREATE ACCOUNT" : "UNLOCK SYSTEM";
+
+    const authForm = document.createElement('div');
+    authForm.id = 'fxAuthForm';
+    authForm.style.cssText = `
+        display: flex; flex-direction: column; padding: 18px 12px;
+        background: linear-gradient(145deg, rgba(8, 10, 18, 0.96), rgba(3, 4, 8, 0.99));
+        border-radius: 14px; border: 2px solid ${formBorderColor};
+        box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 15px ${formBorderColor}18;
+    `;
+
+    authForm.innerHTML = `
+        <div style="text-align: center; margin-bottom: 12px;">
+            <div style="margin-bottom: 6px;">${pageModeBadge}</div>
+            <h3 style="color: #fff; font-size: 13px; margin: 0; font-weight: 900; font-family: 'Orbitron', sans-serif; letter-spacing: 0.5px;">
+                <span style="color: ${engineColor}; text-shadow: 0 0 8px ${engineColor}aa;">${fullEngineName}</span>
+            </h3>
+        </div>
+        
+        <div class="fx-field-container">
+            <input type="text" id="authUser" class="modern-input" placeholder="👤 Username...">
+        </div>
+        
+        <div class="fx-field-container">
+            <input type="text" id="authId" class="modern-input" placeholder="🆔 User ID...">
+        </div>
+
+        <div class="fx-field-container" style="display: ${isFirstTime ? 'none' : 'block'};">
+            <input type="password" id="authPass" class="modern-input" placeholder="🔑 Admin Key...">
+            <span id="fxEyeToggle" class="eye-toggle">👁️</span>
+        </div>
+        
+        <button id="authSubmitBtn" class="modern-btn" style="background: ${btnBg}; box-shadow: ${btnShadow};">${buttonText}</button>
+        <p id="authError" class="modern-err"></p>
+    `;
+
+    const mainBox = document.querySelector('.fx-box');
+    if (mainBox) {
+        mainBox.style.width = "180px";
+        mainBox.style.height = "auto";
+        mainBox.style.maxHeight = "320px";
+        mainBox.style.boxSizing = "border-box";
+        mainBox.appendChild(authForm);
+    }
+
+    // পাসওয়ার্ড ভিজিবিলিটি টগল (👁️)
+    const eyeToggle = document.getElementById('fxEyeToggle');
+    const authPassField = document.getElementById('authPass');
+    if (eyeToggle && authPassField) {
+        eyeToggle.addEventListener('click', () => {
+            if (authPassField.type === "password") {
+                authPassField.type = "text";
+                eyeToggle.textContent = "🔒";
+                eyeToggle.style.color = "#ffd700";
+            } else {
+                authPassField.type = "password";
+                eyeToggle.textContent = "👁️";
+                eyeToggle.style.color = "rgba(255,255,255,0.4)";
+            }
+        });
+    }
+
+    // ইনপুট ফিল্ডের বর্ডার স্টাইল হ্যান্ডলার
+    const inputs = [document.getElementById('authUser'), document.getElementById('authId'), authPassField];
+    inputs.forEach(input => {
+        if (input) {
+            input.addEventListener('focus', () => input.style.borderColor = formBorderColor);
+            input.addEventListener('blur', () => input.style.borderColor = 'rgba(255,255,255,0.1)');
+        }
+    });
+
+    // মেইন ফর্ম সাবমিট লজিক
+    document.getElementById('authSubmitBtn')?.addEventListener('click', () => {
+        const u = document.getElementById('authUser').value.trim();
+        const id = document.getElementById('authId').value.trim();
+        const p = authPassField ? authPassField.value.trim() : '';
+        const err = document.getElementById('authError');
+        
+        if (err) err.style.display = 'none';
+        inputs.forEach(i => i?.classList.remove('input-error-shake'));
+
+        const triggerInputError = (inputEl, message) => {
             if (inputEl) {
                 inputEl.classList.add('input-error-shake');
                 inputEl.focus();
@@ -1189,15 +1304,15 @@ if (mainBox) {
         if (!u) return triggerInputError(document.getElementById('authUser'), "⚠️ Username required!");
         if (!id) return triggerInputError(document.getElementById('authId'), "⚠️ User ID required!");
 
-                if (isFirstTime) {
+        if (isFirstTime) {
             localStorage.setItem('fx_username_' + currentEngineType, u);
             localStorage.setItem('fx_userid_' + currentEngineType, id);
-            safeSpeak("Registration Successful");
+            if (typeof safeSpeak === 'function') safeSpeak("Registration Successful");
             
             // ১. রেজিস্ট্রেশন সফল হলে ফর্ম হাইড হবে এবং সিস্টেম বডি শো হবে
             proceedToSystem(authForm, fxBody);
             
-            // 🔓 ২. সিকিউর আনলক এক্সিকিউশন: সাকসেস হওয়ার পর ইঞ্জিন ও প্রিডিকশন স্টার্ট হবে
+            // 🔓 ২. সিকিউর আনলক এক্সিকিউশন
             setTimeout(() => {
                 if (typeof syncAndPredict === 'function') syncAndPredict(); 
                 if (typeof startEngine === 'function') startEngine();
@@ -1211,12 +1326,12 @@ if (mainBox) {
             const currentSavedId = localStorage.getItem('fx_userid_' + currentEngineType);
 
             if (u === currentSavedUser && id === currentSavedId) {
-                safeSpeak("System Unlocked");
+                if (typeof safeSpeak === 'function') safeSpeak("System Unlocked");
                 
                 // ১. লগইন সফল হলে ফর্ম হাইড হবে এবং সিস্টেম বডি শো হবে
                 proceedToSystem(authForm, fxBody);
                 
-                // 🔓 ২. সিকিউর আনলক এক্সিকিউশন: সাকসেস হওয়ার পর ইঞ্জিন ও প্রিডিকশন স্টার্ট হবে
+                // 🔓 ২. সিকিউর আনলক এক্সিকিউশন
                 setTimeout(() => {
                     if (typeof syncAndPredict === 'function') syncAndPredict(); 
                     if (typeof startEngine === 'function') startEngine();
@@ -1239,6 +1354,7 @@ if (typeof syncAndPredict === 'function') {
 if (typeof startEngine === 'function') {
     window.startTimer = startEngine; 
 }
+
 
 // ==========================================
 // 👑 ৫. আল্ট্রা-প্রিমিয়াম সেটিংস সমৃদ্ধ অ্যাডমিন মোডাল
