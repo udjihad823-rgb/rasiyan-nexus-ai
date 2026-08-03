@@ -1442,7 +1442,7 @@ function showCustomAdminModal() {
     const CONFIG = {
         totalDurationDays: 30,                 
         expiryDate: "2026-09-01 00:00:00",    
-        telegramUsername: "owner_zihad_sir11" 
+        telegramUsername: "zx_vip_trader_00" 
     };
 
     const currentDomain = window.location.hostname || "UNKNOWN_DOMAIN.COM";
@@ -1553,7 +1553,7 @@ function renderExpiryDashboard() {
     dashboard.id = 'fxExpiryOverlay';
     dashboard.className = 'expire-container';
     
-    const baseTelegramUrl = "https://t.me/owner_zihad_sir11";
+    const baseTelegramUrl = "https://t.me/zx_vip_trader_00";
     
     const orderText = "*[🪫 SYSTEM ALARM: SUBSCRIPTION EXPIRED 🪫]* \n\n" +
                       "👋 *🖐️ Hello Admin,*\n" +
